@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark">
+    <fx:Script><![CDATA[
+        import de.dittner.appIconResizer.utils.AppColors;
+        import de.dittner.appIconResizer.utils.FontName;
+        import de.dittner.async.AsyncOperation;
+        import de.dittner.async.IAsyncOperation;
+
+        //--------------------------------------
+        //  text
+        //--------------------------------------
+        private var _text:String = "";
+        [Bindable("msgChanged")]
+        public function get text():String {return _text;}
+
+        private var op:IAsyncOperation;
+
+        public function show(txt:String):IAsyncOperation {
+            _text = txt;
+            dispatchEvent(new Event("msgChanged"));
+            op = new AsyncOperation();
+            return op;
+        }
+
+        private function closeBtnClickHandler(event:MouseEvent):void {
+            if (op) op.dispatchSuccess();
+        }
+        ]]></fx:Script>
+
+    <s:Rect width="250" height="100%" radiusX="5" radiusY="5"
+            minHeight="100">
+        <s:fill>
+            <s:SolidColor color="{AppColors.ERROR_BG}"/>
+        </s:fill>
+    </s:Rect>
+
+    <s:Label text="{text}"
+             width="250" height="100%"
+             paddingLeft="15"
+             paddingRight="15"
+             paddingTop="15"
+             paddingBottom="15"
+             textAlign="center" verticalAlign="middle"
+             fontSize="16"
+             fontFamily="{FontName.MYRIAD}"
+             color="{AppColors.ERROR}"/>
+
+</s:Group>

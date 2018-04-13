@@ -1,0 +1,73 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace input "de.dittner.appIconResizer.ui.common.input.*";
+@namespace list "de.dittner.appIconResizer.ui.common.list.*";
+@namespace spinner "de.dittner.appIconResizer.ui.common.spinner.*";
+@namespace scroller "de.dittner.appIconResizer.ui.common.scroller.*";
+
+@font-face {
+    src: url("/fonts/MyriadPro-Regular.otf");
+    font-family: MyriadPro;
+    embedAsCFF: true;
+}
+
+@font-face {
+    src: url("/fonts/MyriadPro-Semibold.otf");
+    font-family: MyriadPro;
+    fontWeight: bold;
+    embedAsCFF: true;
+}
+
+/**************************** MX **************************/
+
+@font-face {
+    src: url("/fonts/MyriadPro-Regular.otf");
+    font-family: MyriadProMX;
+    embedAsCFF: false;
+}
+
+@font-face {
+    src: url("/fonts/MyriadPro-Semibold.otf");
+    font-family: MyriadProMX;
+    fontWeight: bold;
+    embedAsCFF: false;
+}
+
+/***********************************************************/
+
+global {
+    fontFamily: MyriadProMX;
+    fontSize: 16px;
+    fontWeight: normal;
+    contentBackgroundAlpha: 0;
+    backgroundColor: 0;
+    backgroundAlpha: 0;
+    focusedTextSelectionColor: #ffbbb8;
+}
+
+s|Button {
+    fontFamily: MyriadPro;
+    fontWeight: normal;
+}
+
+s|Label {
+    fontFamily: MyriadPro;
+    fontWeight: normal;
+}
+
+/************************** INPUT **************************/
+
+input|TextInputForm {
+    skinClass: ClassReference("de.dittner.appIconResizer.ui.common.input.DesktopTextInputFormSkin");
+    borderVisible: false;
+    focusSkin: ClassReference("mx.core.UIComponent");
+    fontFamily: MyriadPro;
+    fontSize: 20px;
+    focusedTextSelectionColor: #ffbbb8;
+}
+
+s|RichEditableText {
+    focusSkin: ClassReference("mx.core.UIComponent");
+    focusedTextSelectionColor: #ffbbb8;
+    fontFamily: MyriadPro;
+}
+

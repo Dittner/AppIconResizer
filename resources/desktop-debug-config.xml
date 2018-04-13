@@ -1,0 +1,29 @@
+<flex-config xmlns="http://www.adobe.com/2006/flex-config">
+    <compiler>
+        <mobile>true</mobile>
+
+        <theme>
+            <filename>${flexlib}/themes/Mobile/mobile.swc</filename>
+        </theme>
+
+        <define>
+            <name>CONFIG::debug</name>
+            <value>true</value>
+        </define>
+
+        <debug>true</debug>
+
+        <keep-as3-metadata append="true">
+            <name>PostConstruct</name>
+        </keep-as3-metadata>
+
+        <external-library-path>
+            <path-element>${flexlib}/libs/air/airglobal.swc</path-element>
+        </external-library-path>
+
+        <locale>
+            <locale-element>de_DE</locale-element>
+        </locale>
+    </compiler>
+
+</flex-config>

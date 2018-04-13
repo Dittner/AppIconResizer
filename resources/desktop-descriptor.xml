@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<application xmlns="http://ns.adobe.com/air/application/29.0">
+
+    <id>AppIconResizer</id>
+    <filename>AppIconResizer</filename>
+    <name>AppIconResizer</name>
+
+    <versionNumber>1.1</versionNumber>
+    <versionLabel>1.1</versionLabel>
+
+    <initialWindow>
+        <content></content>
+        <minimizable>true</minimizable>
+        <maximizable>true</maximizable>
+        <resizable>true</resizable>
+        <width>768</width>
+        <height>1536</height>
+        <minSize>768 900</minSize>
+        <aspectRatio>portrait</aspectRatio>
+        <autoOrients>false</autoOrients>
+        <fullScreen>true</fullScreen>
+        <visible>true</visible>
+        <renderMode>gpu</renderMode>
+        <softKeyboardBehavior>none</softKeyboardBehavior>
+    </initialWindow>
+
+    <supportedProfiles>desktop</supportedProfiles>
+
+    <icon>
+        <image60x60>/icons/logo60.png</image60x60>
+        <image128x128>/icons/logo128.png</image128x128>
+        <image512x512>/icons/logo512.png</image512x512>
+    </icon>
+
+</application>
+

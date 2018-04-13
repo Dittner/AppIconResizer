@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+               xmlns:view="de.dittner.appIconResizer.ui.view.*"
+               frameRate="30"
+               usePreloader="true"
+               preloader="de.dittner.appIconResizer.ui.common.AppPreloader"
+               backgroundColor="0x50a6d6"
+               creationComplete="creationCompleteHandler(event)"
+               interactionMode="mouse"
+               xmlns:s="library://ns.adobe.com/flex/spark">
+
+    <fx:Style source="/Style.css"/>
+
+    <fx:Script><![CDATA[
+        import de.dittner.appIconResizer.model.AppModel;
+        import de.dittner.appIconResizer.utils.Cache;
+
+        private function creationCompleteHandler(event:Event):void {
+            Mouse.cursor = "arrow";
+            Cache.init();
+            var appModel:AppModel = new AppModel();
+            appModel.init();
+            mainView.vm = appModel;
+        }
+        ]]></fx:Script>
+
+    <view:MainView id="mainView"
+                   width="100%" height="100%"/>
+
+    <s:Group id="popupLayer"
+             width="100%" height="100%"/>
+</s:Application>

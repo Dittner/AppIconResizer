@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+             xmlns:s="library://ns.adobe.com/flex/spark"
+             xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+             xmlns:input="de.dittner.appIconResizer.ui.common.input.*"
+             alpha.disabledStates="0.5" blendMode="normal">
+
+    <fx:Metadata>
+    <![CDATA[
+        /**
+         * @copy spark.skins.spark.ApplicationSkin#hostComponent
+         */
+        [HostComponent("de.dittner.appIconResizer.ui.common.input.TextInputForm")]
+        ]]>
+    </fx:Metadata>
+
+    <fx:Script fb:purpose="styling">
+        <![CDATA[
+        import de.dittner.appIconResizer.utils.AppColors;
+
+        import mx.core.FlexVersion;
+
+        private var paddingChanged:Boolean;
+
+        /* Define the skin elements that should not be colorized. */
+        static private const exclusions:Array = ["background", "textDisplay", "promptDisplay", "border"];
+
+        /* exclusions before Flex 4.5 for backwards-compatibility purposes */
+        static private const exclusions_4_0:Array = ["background", "textDisplay", "promptDisplay"];
+
+        override public function get colorizeExclusions():Array {
+            return FlexVersion.compatibilityVersion < FlexVersion.VERSION_4_5 ? exclusions_4_0 : exclusions;
+        }
+
+        override protected function measure():void {
+            super.measure();
+            measuredHeight = hostComponent.showTitle ? TITLE_HEIGHT + 40 : 40;
+        }
+
+        private static const TITLE_HEIGHT:uint = 20;
+
+        override protected function updateDisplayList(w:Number, h:Number):void {
+            super.updateDisplayList(w, h);
+
+            var bgVerOffset:Number = hostComponent.showTitle ? TITLE_HEIGHT : 0;
+            bg.x = 0;
+            bg.y = bgVerOffset;
+            bg.height = h - bgVerOffset;
+
+            titleLbl.visible = hostComponent.showTitle;
+            textDisplay.y = bgVerOffset + 10;
+        }
+        ]]>
+    </fx:Script>
+
+    <fx:Script>
+        <![CDATA[
+        private static const focusExclusions:Array = ["textDisplay"];
+
+        override public function get focusSkinExclusions():Array { return focusExclusions;}
+        ]]>
+    </fx:Script>
+
+    <s:states>
+        <s:State name="normal"/>
+        <s:State name="disabled" stateGroups="disabledStates"/>
+        <s:State name="normalWithPrompt"/>
+        <s:State name="disabledWithPrompt" stateGroups="disabledStates"/>
+    </s:states>
+
+    <s:BitmapImage id="bg"
+                   fillMode="scale"
+                   source="@Embed(source='/assets/input_bg.png', scaleGridLeft='20', scaleGridRight='21', scaleGridTop='20', scaleGridBottom='21')"
+                   width="100%"/>
+
+    <input:MXLabel id="titleLbl"
+                   fontSize="15"
+                   multiline="false"
+                   mouseEnabled="false"
+                   text="{hostComponent.title}"
+                   color="{AppColors.TEXT_CONTROL_TITLE}"/>
+
+    <s:RichEditableText id="textDisplay"
+                        left="5" right="5"
+                        color="{AppColors.TEXT_DARK_GRAY}"/>
+
+</s:SparkSkin>
