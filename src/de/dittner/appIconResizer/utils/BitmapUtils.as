@@ -1,4 +1,6 @@
 package de.dittner.appIconResizer.utils {
+import de.dittner.appIconResizer.model.AppSplash;
+
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.PixelSnapping;
@@ -57,6 +59,35 @@ public class BitmapUtils {
 		}
 
 		return finalData;
+	}
+
+	public static function generateSplash(logo:BitmapData, width:Number, height:Number, factor:String, bgColor:uint):BitmapData {
+		var logoScale:Number = 1;
+
+		switch (factor) {
+			case AppSplash.FACTOR_1X :
+				logoScale = 1 / 3;
+				break;
+			case AppSplash.FACTOR_2X :
+				logoScale = 2 / 3;
+				break;
+			case AppSplash.FACTOR_3X :
+				logoScale = 1;
+				break;
+			default :
+				throw new Error("AppSplash factor is unknown!");
+		}
+
+		var res:BitmapData = new BitmapData(width, height, false, bgColor);
+		var bitmap:Bitmap = new Bitmap(logo, PixelSnapping.NEVER, true);
+		//bitmap.scaleX = bitmap.scaleY = logoScale;
+
+		var matr:Matrix = new Matrix();
+		matr.scale(logoScale, logoScale);
+		matr.translate((width - logo.width * logoScale) / 2, (height - logo.height * logoScale) / 2);
+
+		res.drawWithQuality(bitmap, matr, null, null, null, true, StageQuality.BEST);
+		return res;
 	}
 }
 }

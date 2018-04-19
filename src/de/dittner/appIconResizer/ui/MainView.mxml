@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:input="de.dittner.appIconResizer.ui.common.input.*"
+         xmlns:button="de.dittner.appIconResizer.ui.common.button.*"
+         mouseEnabled="{!isProcessing}"
+         mouseChildren="{!isProcessing}">
+
+    <fx:Script><![CDATA[
+        import de.dittner.appIconResizer.model.AppModel;
+        import de.dittner.async.IAsyncOperation;
+        import de.dittner.async.ProgressCommand;
+
+        //--------------------------------------
+        //  vm
+        //--------------------------------------
+        private var _vm:AppModel;
+        [Bindable("vmChanged")]
+        public function get vm():AppModel {return _vm;}
+        public function set vm(value:AppModel):void {
+            if (_vm != value) {
+                _vm = value;
+                dispatchEvent(new Event("vmChanged"));
+            }
+        }
+
+        //--------------------------------------
+        //  isProcessing
+        //--------------------------------------
+        private var _isProcessing:Boolean = false;
+        [Bindable("isProcessingChanged")]
+        public function get isProcessing():Boolean {return _isProcessing;}
+        public function set isProcessing(value:Boolean):void {
+            if (_isProcessing != value) {
+                _isProcessing = value;
+                dispatchEvent(new Event("isProcessingChanged"));
+            }
+        }
+
+        //--------------------------------------
+        //  processingInfo
+        //--------------------------------------
+        private var _processingInfo:String = "";
+        [Bindable("processingInfoChanged")]
+        public function get processingInfo():String {return _processingInfo;}
+        public function set processingInfo(value:String):void {
+            if (_processingInfo != value) {
+                _processingInfo = value;
+                dispatchEvent(new Event("processingInfoChanged"));
+            }
+        }
+
+        private function generateIconsBtnEnabled(selectedIcon:BitmapData, selectedSplash:BitmapData, iconSizes:String, iconNameTemplate:String):Boolean {
+            return (selectedIcon || selectedSplash) && iconSizes.length > 2 && iconNameTemplate.indexOf("SIZE") != -1;
+        }
+
+        private var generateCmd:ProgressCommand;
+        private function generateIcons():void {
+            if (!isProcessing) {
+                isProcessing = true;
+                generateCmd = vm.generateIcons();
+                generateCmd.addCompleteCallback(generateCompleteHandler);
+                generateCmd.addProgressCallback(generateProgressHandler);
+            }
+        }
+
+        private function generateProgressHandler(value:Number):void {
+            processingInfo = Math.round(value * 100) + "%";
+        }
+
+        private function generateCompleteHandler(op:IAsyncOperation):void {
+            processingInfo = op.isSuccess ? "documents/appIcons" : op.error;
+            isProcessing = false;
+        }
+        ]]></fx:Script>
+    <s:layout>
+        <s:VerticalLayout horizontalAlign="center" gap="20"
+                          paddingBottom="50" paddingTop="50" paddingLeft="20" paddingRight="20"/>
+    </s:layout>
+
+    <s:HGroup width="100%" horizontalAlign="center" gap="50">
+        <s:Group width="250" height="320">
+            <s:BitmapImage source="@Embed(source='/assets/empty_icon_bg.png')"/>
+
+            <s:BitmapImage id="selectedIcon"
+                           fillMode="scale"
+                           source="{vm.selectedIcon}"
+                           width="100%"
+                           height="250"/>
+
+            <button:WhiteButton label="Select icon as PNG-File"
+                                width="100%" bottom="0"
+                                click="vm.selectIcon()"/>
+        </s:Group>
+
+        <s:Group width="250" height="320">
+            <s:BitmapImage source="@Embed(source='/assets/empty_splash_bg.png')"/>
+
+            <s:BitmapImage id="selectedSplash"
+                           fillMode="scale"
+                           source="{vm.selectedSplash}"
+                           width="100%"
+                           height="250"/>
+
+            <button:WhiteButton label="Select logo as PNG-File"
+                                width="100%" bottom="0"
+                                click="vm.selectSplash()"/>
+        </s:Group>
+
+    </s:HGroup>
+
+    <s:Spacer height="100%"/>
+
+    <input:TextInputForm id="iconSizesInput"
+                         restrict="0-9\, "
+                         text="@{vm.iconSizes}"
+                         title="Icon sizes" width="600"/>
+
+    <input:TextInputForm title="Icon's template of name (use constant SIZE as icon's size)"
+                         width="600" text="@{vm.iconNameTemplate}"/>
+
+    <input:TextInputForm title="Log's item template (use constant SIZE as icon's size)"
+                         width="600" text="@{vm.logItemTemplate}"/>
+
+    <s:Group width="600">
+        <input:TextInputForm id="splashBgColorInput"
+                             restrict="0-9,A-F,a-f"
+                             text="@{vm.splashBgColor}"
+                             paddingLeft="22"
+                             maxChars="6"
+                             title="Background color for a splash icon" width="600"/>
+
+        <s:Label left="10"
+                 color="#0"
+                 fontSize="20" verticalCenter="10"
+                 text="#"/>
+    </s:Group>
+
+    <s:Spacer height="100%"/>
+
+    <button:RedButton label="Generate"
+                      width="250"
+                      enabled="{generateIconsBtnEnabled(vm.selectedIcon, vm.selectedSplash, vm.iconSizes, vm.iconNameTemplate)}"
+                      click="generateIcons()"/>
+
+    <s:Label width="500"
+             color="#ffFFff"
+             fontSize="18"
+             textAlign="center"
+             text="{processingInfo}"/>
+
+</s:Group>

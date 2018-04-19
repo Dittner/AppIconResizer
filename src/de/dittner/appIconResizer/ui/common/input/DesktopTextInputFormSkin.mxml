@@ -81,7 +81,7 @@
                    color="{AppColors.TEXT_CONTROL_TITLE}"/>
 
     <s:RichEditableText id="textDisplay"
-                        left="5" right="5"
+                        left="{getStyle('paddingLeft')}" right="{getStyle('paddingRight')}"
                         color="{AppColors.TEXT_DARK_GRAY}"/>
 
 </s:SparkSkin>

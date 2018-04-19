@@ -32,6 +32,7 @@ public class FileChooser {
 		else file = File.documentsDirectory;
 		try {
 			file.addEventListener(Event.SELECT, fileSelected);
+			file.addEventListener(Event.CANCEL, fileSelectCanceled);
 			file.browseForOpen("Select file", filters);
 		}
 		catch (error:Error) {
@@ -44,6 +45,10 @@ public class FileChooser {
 		file = event.target as File;
 		Cache.write(LAST_OPENED_FILE_PATH, file.nativePath);
 		loadFile(file.url)
+	}
+
+	private static function fileSelectCanceled(event:Event):void {
+		curOp.dispatchCancel();
 	}
 
 	private static function loadFile(url:String):void {

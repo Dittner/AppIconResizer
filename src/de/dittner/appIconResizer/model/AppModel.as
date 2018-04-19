@@ -1,21 +1,21 @@
 package de.dittner.appIconResizer.model {
-import com.adobe.images.PNGEncoder;
-
+import de.dittner.appIconResizer.cmd.GenerateIconsCmd;
+import de.dittner.appIconResizer.cmd.GenerateIconsState;
+import de.dittner.appIconResizer.cmd.GenerateSplashesCmd;
+import de.dittner.appIconResizer.cmd.PrepareCmd;
+import de.dittner.appIconResizer.cmd.StoreCmd;
 import de.dittner.appIconResizer.ui.common.dialogBox.showNotification;
-import de.dittner.appIconResizer.utils.BitmapUtils;
+import de.dittner.appIconResizer.utils.Cache;
 import de.dittner.appIconResizer.utils.FileChooser;
+import de.dittner.async.CompositeCommand;
 import de.dittner.async.IAsyncOperation;
-import de.dittner.async.utils.invalidateOf;
+import de.dittner.async.ProgressCommand;
 
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.events.Event;
 import flash.events.EventDispatcher;
-import flash.filesystem.File;
-import flash.filesystem.FileMode;
-import flash.filesystem.FileStream;
 import flash.net.FileFilter;
-import flash.utils.ByteArray;
 
 public class AppModel extends EventDispatcher {
 	public function AppModel() {
@@ -68,6 +68,19 @@ public class AppModel extends EventDispatcher {
 	}
 
 	//--------------------------------------
+	//  splashBgColor
+	//--------------------------------------
+	private var _splashBgColor:String = "f3f1e8";
+	[Bindable("splashBgColorChanged")]
+	public function get splashBgColor():String {return _splashBgColor;}
+	public function set splashBgColor(value:String):void {
+		if (_splashBgColor != value) {
+			_splashBgColor = value;
+			dispatchEvent(new Event("splashBgColorChanged"));
+		}
+	}
+
+	//--------------------------------------
 	//  selectedIcon
 	//--------------------------------------
 	private var _selectedIcon:BitmapData;
@@ -81,28 +94,15 @@ public class AppModel extends EventDispatcher {
 	}
 
 	//--------------------------------------
-	//  isProcessing
+	//  selectedSplash
 	//--------------------------------------
-	private var _isProcessing:Boolean = false;
-	[Bindable("isProcessingChanged")]
-	public function get isProcessing():Boolean {return _isProcessing;}
-	public function set isProcessing(value:Boolean):void {
-		if (_isProcessing != value) {
-			_isProcessing = value;
-			dispatchEvent(new Event("isProcessingChanged"));
-		}
-	}
-
-	//--------------------------------------
-	//  processingInfo
-	//--------------------------------------
-	private var _processingInfo:String = "";
-	[Bindable("processingInfoChanged")]
-	public function get processingInfo():String {return _processingInfo;}
-	public function set processingInfo(value:String):void {
-		if (_processingInfo != value) {
-			_processingInfo = value;
-			dispatchEvent(new Event("processingInfoChanged"));
+	private var _selectedSplash:BitmapData;
+	[Bindable("selectedSplashChanged")]
+	public function get selectedSplash():BitmapData {return _selectedSplash;}
+	public function set selectedSplash(value:BitmapData):void {
+		if (_selectedSplash != value) {
+			_selectedSplash = value;
+			dispatchEvent(new Event("selectedSplashChanged"));
 		}
 	}
 
@@ -112,19 +112,26 @@ public class AppModel extends EventDispatcher {
 	//
 	//----------------------------------------------------------------------------------------------
 
+	private static const ICON_NAME_TEMPLATE:String = "ICON_NAME_TEMPLATE";
+	private static const LOG_ITEM_TEMPLATE:String = "LOG_ITEM_TEMPLATE";
+	private static const ICON_SIZES:String = "ICON_SIZES";
 	public function init():void {
-		iconNameTemplate = "AppIconSIZExSIZE.png";
-		logItemTemplate = "<imageSIZExSIZE>icons/AppIconSIZExSIZE.png</imageSIZExSIZE>";
-		iconSizes = "29, 36, 40, 48, 50, 57, 58, 60, 72, 75, 76, 80, 87, 96, 100, 114, 120, 144, 152, 167, 180, 192, 512, 1024";
+		iconNameTemplate = Cache.read(ICON_NAME_TEMPLATE) || "AppIconSIZExSIZE.png";
+		logItemTemplate = Cache.read(LOG_ITEM_TEMPLATE) || "<imageSIZExSIZE>icons/AppIconSIZExSIZE.png</imageSIZExSIZE>";
+		iconSizes = Cache.read(ICON_SIZES) || "20, 29, 36, 40, 48, 50, 57, 58, 60, 72, 75, 76, 80, 87, 96, 100, 114, 120, 144, 152, 167, 180, 192, 512, 1024";
 	}
+
+	//--------------------------------------
+	//  File Browse
+	//--------------------------------------
 
 	private static const BROWSE_FILE_FILTERS:Array = [new FileFilter("PNG-file", "*.png"), new FileFilter("PNG-file", "*.PNG")];
 	public function selectIcon():void {
 		var op:IAsyncOperation = FileChooser.browse(BROWSE_FILE_FILTERS);
-		op.addCompleteCallback(imageBrowsed);
+		op.addCompleteCallback(iconBrowsed);
 	}
 
-	private function imageBrowsed(op:IAsyncOperation):void {
+	private function iconBrowsed(op:IAsyncOperation):void {
 		if (op.isSuccess && op.result) {
 			selectedIcon = op.isSuccess ? (op.result[0] as Bitmap).bitmapData : null;
 			if (selectedIcon && (selectedIcon.width != 1024 || selectedIcon.width != 1024)) {
@@ -134,92 +141,53 @@ public class AppModel extends EventDispatcher {
 		}
 	}
 
-	public function generateIcons():void {
-		if (!selectedIcon) return;
-		isProcessing = true;
-		store(getResizedIconsFrom(selectedIcon));
+	public function selectSplash():void {
+		var op:IAsyncOperation = FileChooser.browse(BROWSE_FILE_FILTERS);
+		op.addCompleteCallback(splashBrowsed);
 	}
 
-	private function getResizedIconsFrom(origin:BitmapData):Array {
+	private function splashBrowsed(op:IAsyncOperation):void {
+		selectedSplash = op.isSuccess && op.result ? (op.result[0] as Bitmap).bitmapData : null;
+	}
+
+	//--------------------------------------
+	//  Generate
+	//--------------------------------------
+
+	public function generateIcons():ProgressCommand {
+		Cache.write(ICON_NAME_TEMPLATE, iconNameTemplate);
+		Cache.write(LOG_ITEM_TEMPLATE, logItemTemplate);
+		Cache.write(ICON_SIZES, iconSizes);
+
+		var state:GenerateIconsState = new GenerateIconsState();
+		state.originIcon = selectedIcon;
+		state.originSplash = selectedSplash;
+		state.iconSizes = getIconsSizes();
+		state.iconNameTemplate = iconNameTemplate;
+		state.logItemTemplate = logItemTemplate;
+		state.splashBgColor = int("0x" + splashBgColor);
+
+		var cmd:CompositeCommand = new CompositeCommand();
+		cmd.addProgressOperation(PrepareCmd, 0.01, state);
+		cmd.addProgressOperation(GenerateIconsCmd, 0.1, state);
+		cmd.addProgressOperation(GenerateSplashesCmd, 0.2, state);
+		cmd.addProgressOperation(StoreCmd, 1, state);
+
+		cmd.execute();
+
+		return cmd;
+	}
+
+	private function getIconsSizes():Array {
 		var res:Array = [];
 		var sizeHash:Object = {};
 		var sizes:Array = iconSizes.replace(/( )/g, "").split(",");
 		for each(var size:Number in sizes)
 			if (!isNaN(size) && size <= 1024 && size > 0 && !sizeHash[size]) {
 				sizeHash[size] = true;
-				var icon:BitmapData = BitmapUtils.resample(origin, size, size);
-				res.push(icon);
+				res.push(size);
 			}
-
 		return res;
-	}
-
-	private var logs:String = "";
-	private var total:Number = 0;
-	private var complete:Number = 0;
-	private var availableIcons:Array = [];
-	private var destDir:File;
-	private function store(icons:Array):void {
-		logs = "";
-		complete = 0;
-		total = icons.length;
-		availableIcons = icons;
-
-		destDir = File.documentsDirectory.resolvePath("appIcons" + File.separator);
-		if (destDir.exists) destDir.deleteDirectory(true);
-		destDir.createDirectory();
-
-		storeNextIcon();
-	}
-
-	private function notify():void {
-		if (total == 0)
-			processingInfo = "No available icons!";
-		else if (total == complete)
-			processingInfo = "documents/appIcons";
-		else
-			processingInfo = complete + "/" + total + " icons...";
-	}
-
-	private function storeNextIcon():void {
-		complete = total - availableIcons.length;
-		notify();
-
-		if (availableIcons.length == 0) {
-			isProcessing = false;
-			writeLogs(logs, "logs.txt");
-		}
-		else {
-			try {
-				var pngIcon:BitmapData = availableIcons.shift();
-				var pngName:String = iconNameTemplate.replace(/SIZE/g, pngIcon.width);
-				var png:ByteArray = PNGEncoder.encode(pngIcon);
-				writeFile(png, pngName);
-				logs += logItemTemplate.replace(/SIZE/g, pngIcon.width) + "\n";
-				invalidateOf(storeNextIcon);
-			}
-			catch (e:Error) {
-				isProcessing = false;
-				processingInfo = "";
-				showNotification(e.message || "Error!");
-			}
-		}
-	}
-
-	private function writeFile(bytes:ByteArray, fileName:String):void {
-		var fileStream:FileStream = new FileStream();
-		var file:File = new File(destDir.nativePath + File.separator + fileName);
-		fileStream.open(file, FileMode.WRITE);
-		fileStream.writeBytes(bytes, 0, bytes.length);
-		fileStream.close();
-	}
-
-	private function writeLogs(txt:String, fileName:String):void {
-		var fileStream:FileStream = new FileStream();
-		var file:File = new File(destDir.nativePath + File.separator + fileName);
-		fileStream.open(file, FileMode.WRITE);
-		fileStream.writeUTFBytes(txt);
-		fileStream.close();
 	}
 
 }

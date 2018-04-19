@@ -17,7 +17,7 @@ public class AppPreloader extends SparkDownloadProgressBar {
 	public function AppPreloader() {
 		super();
 		addEventListener(Event.ADDED_TO_STAGE, addedToStage);
-		backgroundColor = 0xf8f7f4;
+		backgroundColor = 0x50a6d6;
 	}
 
 	//----------------------------------------------------------------------------------------------
