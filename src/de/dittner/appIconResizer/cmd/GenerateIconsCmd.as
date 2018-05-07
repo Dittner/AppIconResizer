@@ -1,12 +1,11 @@
 package de.dittner.appIconResizer.cmd {
 import de.dittner.appIconResizer.model.AppIcon;
 import de.dittner.appIconResizer.utils.BitmapUtils;
-import de.dittner.async.AsyncCommand;
 import de.dittner.async.IAsyncCommand;
 import de.dittner.async.ProgressOperation;
 import de.dittner.async.utils.invalidateOf;
 
-public class GenerateIconsCmd extends ProgressOperation implements IAsyncCommand{
+public class GenerateIconsCmd extends ProgressOperation implements IAsyncCommand {
 	public function GenerateIconsCmd(state:GenerateIconsState) {
 		super();
 		this.state = state;

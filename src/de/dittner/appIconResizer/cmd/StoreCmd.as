@@ -73,8 +73,8 @@ public class StoreCmd extends ProgressOperation implements IAsyncCommand {
 			splashesStream.open(splashesFile, FileMode.WRITE);
 			splashesStream.writeUTFBytes(state.splashesLog);
 			splashesStream.close();
-			dispatchSuccess();
 		}
+		dispatchSuccess();
 	}
 }
 }

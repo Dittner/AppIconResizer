@@ -139,6 +139,9 @@ public class AppModel extends EventDispatcher {
 				showNotification("Selected icon has not size equals 1024px!");
 			}
 		}
+		else {
+			selectedIcon = null;
+		}
 	}
 
 	public function selectSplash():void {
