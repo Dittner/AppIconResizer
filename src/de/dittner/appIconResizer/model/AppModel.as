@@ -70,7 +70,7 @@ public class AppModel extends EventDispatcher {
 	//--------------------------------------
 	//  splashBgColor
 	//--------------------------------------
-	private var _splashBgColor:String = "f3f1e8";
+	private var _splashBgColor:String = "ffFFff";
 	[Bindable("splashBgColorChanged")]
 	public function get splashBgColor():String {return _splashBgColor;}
 	public function set splashBgColor(value:String):void {
@@ -115,10 +115,12 @@ public class AppModel extends EventDispatcher {
 	private static const ICON_NAME_TEMPLATE:String = "ICON_NAME_TEMPLATE";
 	private static const LOG_ITEM_TEMPLATE:String = "LOG_ITEM_TEMPLATE";
 	private static const ICON_SIZES:String = "ICON_SIZES";
+	private static const SPLASH_BG_COLOR:String = "SPLASH_BG_COLOR";
 	public function init():void {
 		iconNameTemplate = Cache.read(ICON_NAME_TEMPLATE) || "AppIconSIZExSIZE.png";
 		logItemTemplate = Cache.read(LOG_ITEM_TEMPLATE) || "<imageSIZExSIZE>icons/AppIconSIZExSIZE.png</imageSIZExSIZE>";
 		iconSizes = Cache.read(ICON_SIZES) || "20, 29, 36, 40, 48, 50, 57, 58, 60, 72, 75, 76, 80, 87, 96, 100, 114, 120, 144, 152, 167, 180, 192, 512, 1024";
+		splashBgColor = Cache.read(SPLASH_BG_COLOR) || _splashBgColor;
 	}
 
 	//--------------------------------------
@@ -161,6 +163,7 @@ public class AppModel extends EventDispatcher {
 		Cache.write(ICON_NAME_TEMPLATE, iconNameTemplate);
 		Cache.write(LOG_ITEM_TEMPLATE, logItemTemplate);
 		Cache.write(ICON_SIZES, iconSizes);
+		Cache.write(SPLASH_BG_COLOR, splashBgColor);
 
 		var state:GenerateIconsState = new GenerateIconsState();
 		state.originIcon = selectedIcon;

@@ -80,7 +80,14 @@
 
     <s:HGroup width="100%" horizontalAlign="center" gap="50">
         <s:Group width="250" height="320">
-            <s:BitmapImage source="@Embed(source='/assets/empty_icon_bg.png')"/>
+            <s:BitmapImage id="iconBgIcon"
+                           source="@Embed(source='/assets/empty_icon_bg.png')"/>
+            <s:BitmapImage source="@Embed(source='/assets/empty_icon_bg_pattern.png')"
+                           visible="{vm.selectedIcon}"
+                           fillMode="repeat"
+                           left="4" top="4"
+                           width="{iconBgIcon.width - 8}"
+                           height="{iconBgIcon.height - 8}"/>
 
             <s:BitmapImage id="selectedIcon"
                            fillMode="scale"
@@ -94,7 +101,14 @@
         </s:Group>
 
         <s:Group width="250" height="320">
-            <s:BitmapImage source="@Embed(source='/assets/empty_splash_bg.png')"/>
+            <s:BitmapImage id="splashBgIcon"
+                           source="@Embed(source='/assets/empty_splash_bg.png')"/>
+            <s:BitmapImage source="@Embed(source='/assets/empty_icon_bg_pattern.png')"
+                           visible="{vm.selectedSplash}"
+                           fillMode="repeat"
+                           left="4" top="4"
+                           width="{iconBgIcon.width - 8}"
+                           height="{iconBgIcon.height - 8}"/>
 
             <s:BitmapImage id="selectedSplash"
                            fillMode="scale"
