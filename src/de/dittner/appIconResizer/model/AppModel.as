@@ -1,4 +1,5 @@
 package de.dittner.appIconResizer.model {
+import de.dittner.appIconResizer.cmd.GenerateAndStoreIOSAssetsCmd;
 import de.dittner.appIconResizer.cmd.GenerateIconsCmd;
 import de.dittner.appIconResizer.cmd.GenerateIconsState;
 import de.dittner.appIconResizer.cmd.GenerateSplashesCmd;
@@ -13,9 +14,13 @@ import de.dittner.async.ProgressCommand;
 
 import flash.display.Bitmap;
 import flash.display.BitmapData;
+import flash.display.MovieClip;
 import flash.events.Event;
 import flash.events.EventDispatcher;
+import flash.filesystem.File;
 import flash.net.FileFilter;
+
+import mx.collections.ArrayCollection;
 
 public class AppModel extends EventDispatcher {
 	public function AppModel() {
@@ -106,6 +111,32 @@ public class AppModel extends EventDispatcher {
 		}
 	}
 
+	//--------------------------------------
+	//  swfFileUrl
+	//--------------------------------------
+	private var _swfFileUrl:String = "";
+	[Bindable("swfFileUrlChanged")]
+	public function get swfFileUrl():String {return _swfFileUrl;}
+	public function set swfFileUrl(value:String):void {
+		if (_swfFileUrl != value) {
+			_swfFileUrl = value;
+			dispatchEvent(new Event("swfFileUrlChanged"));
+		}
+	}
+
+	//--------------------------------------
+	//  iosAssetColl
+	//--------------------------------------
+	private var _iosAssetColl:ArrayCollection;
+	[Bindable("iosAssetCollChanged")]
+	public function get iosAssetColl():ArrayCollection {return _iosAssetColl;}
+	public function set iosAssetColl(value:ArrayCollection):void {
+		if (_iosAssetColl != value) {
+			_iosAssetColl = value;
+			dispatchEvent(new Event("iosAssetCollChanged"));
+		}
+	}
+
 	//----------------------------------------------------------------------------------------------
 	//
 	//  Methods
@@ -127,9 +158,10 @@ public class AppModel extends EventDispatcher {
 	//  File Browse
 	//--------------------------------------
 
-	private static const BROWSE_FILE_FILTERS:Array = [new FileFilter("PNG-file", "*.png"), new FileFilter("PNG-file", "*.PNG")];
+	private static const BROWSE_PNG_FILE_FILTERS:Array = [new FileFilter("PNG-file", "*.png"), new FileFilter("PNG-file", "*.PNG")];
+	private static const BROWSE_SWF_FILE_FILTERS:Array = [new FileFilter("SWF-file", "*.swf"), new FileFilter("SWF-file", "*.SWF")];
 	public function selectIcon():void {
-		var op:IAsyncOperation = FileChooser.browse(BROWSE_FILE_FILTERS);
+		var op:IAsyncOperation = FileChooser.browse(BROWSE_PNG_FILE_FILTERS);
 		op.addCompleteCallback(iconBrowsed);
 	}
 
@@ -147,12 +179,30 @@ public class AppModel extends EventDispatcher {
 	}
 
 	public function selectSplash():void {
-		var op:IAsyncOperation = FileChooser.browse(BROWSE_FILE_FILTERS);
+		var op:IAsyncOperation = FileChooser.browse(BROWSE_PNG_FILE_FILTERS);
 		op.addCompleteCallback(splashBrowsed);
 	}
 
 	private function splashBrowsed(op:IAsyncOperation):void {
 		selectedSplash = op.isSuccess && op.result ? (op.result[0] as Bitmap).bitmapData : null;
+	}
+
+	public function selectSWFFile():void {
+		var op:IAsyncOperation = FileChooser.browse(BROWSE_SWF_FILE_FILTERS);
+		op.addCompleteCallback(swfBrowsed);
+	}
+
+	private function swfBrowsed(op:IAsyncOperation):void {
+		if (!op.isSuccess) return;
+		var assetsMC:MovieClip = op.result && op.result.length > 0 ? op.result[0] as MovieClip : null;
+		swfFileUrl = op.isSuccess && op.result.length > 0 && op.result[1] is File ? (op.result[1] as File).nativePath : "";
+		var assets:Array = [];
+		for (var prop:String in assetsMC)
+			if (assetsMC[prop] is MovieClip) {
+				var asset:IOSAsset = new IOSAsset(assetsMC[prop], prop);
+				assets.push(asset);
+			}
+		iosAssetColl = new ArrayCollection(assets);
 	}
 
 	//--------------------------------------
@@ -179,6 +229,18 @@ public class AppModel extends EventDispatcher {
 		cmd.addProgressOperation(GenerateSplashesCmd, 0.2, state);
 		cmd.addProgressOperation(StoreCmd, 1, state);
 
+		cmd.execute();
+
+		return cmd;
+	}
+
+	public function generateAssets():ProgressCommand {
+		var state:GenerateIconsState = new GenerateIconsState();
+		state.assets = iosAssetColl.source;
+
+		var cmd:CompositeCommand = new CompositeCommand();
+		cmd.addProgressOperation(PrepareCmd, 0.01, state);
+		cmd.addProgressOperation(GenerateAndStoreIOSAssetsCmd, 1, state);
 		cmd.execute();
 
 		return cmd;

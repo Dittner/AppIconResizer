@@ -3,6 +3,7 @@
          xmlns:s="library://ns.adobe.com/flex/spark"
          xmlns:input="de.dittner.appIconResizer.ui.common.input.*"
          xmlns:button="de.dittner.appIconResizer.ui.common.button.*"
+         currentState="iconAndSplash"
          mouseEnabled="{!isProcessing}"
          mouseChildren="{!isProcessing}">
 
@@ -10,6 +11,8 @@
         import de.dittner.appIconResizer.model.AppModel;
         import de.dittner.async.IAsyncOperation;
         import de.dittner.async.ProgressCommand;
+
+        import mx.collections.ArrayCollection;
 
         //--------------------------------------
         //  vm
@@ -54,6 +57,10 @@
             return (selectedIcon || selectedSplash) && iconSizes.length > 2 && iconNameTemplate.indexOf("SIZE") != -1;
         }
 
+        private function generateIOSAssetsBtnEnabled(assetColl:ArrayCollection):Boolean {
+            return assetColl && assetColl.length > 0;
+        }
+
         private var generateCmd:ProgressCommand;
         private function generateIcons():void {
             if (!isProcessing) {
@@ -64,21 +71,56 @@
             }
         }
 
+        private function generateIOSAssets():void {
+            if (!isProcessing) {
+                isProcessing = true;
+                generateCmd = vm.generateAssets();
+                generateCmd.addCompleteCallback(generateCompleteHandler);
+                generateCmd.addProgressCallback(generateProgressHandler);
+            }
+        }
+
         private function generateProgressHandler(value:Number):void {
             processingInfo = Math.round(value * 100) + "%";
         }
 
         private function generateCompleteHandler(op:IAsyncOperation):void {
-            processingInfo = op.isSuccess ? "documents/appIcons" : op.error;
+            processingInfo = op.isSuccess ? "documents/APP_ICON_RESIZER" : op.error;
             isProcessing = false;
         }
         ]]></fx:Script>
     <s:layout>
         <s:VerticalLayout horizontalAlign="center" gap="20"
-                          paddingBottom="50" paddingTop="50" paddingLeft="20" paddingRight="20"/>
+                          paddingBottom="50" paddingTop="20" paddingLeft="20" paddingRight="20"/>
     </s:layout>
+    <s:states>
+        <s:State name="iconAndSplash"/>
+        <s:State name="assets"/>
+    </s:states>
 
-    <s:HGroup width="100%" horizontalAlign="center" gap="50">
+    <s:Label id="splashLbl"
+             text="Splash and app icons"
+             fontSize="25"
+             color="#ffFFff"
+             fontWeight.iconAndSplash="bold" fontWeight.assets="normal"
+             mouseOver="splashLbl.setStyle('textDecoration','underline')"
+             mouseOut="splashLbl.setStyle('textDecoration','none')"
+             click="currentState = 'iconAndSplash'"/>
+
+    <s:Label id="assetsLbl"
+             text="IOS assets from SWF-file"
+             fontSize="25"
+             color="#ffFFff"
+             fontWeight.iconAndSplash="normal" fontWeight.assets="bold"
+             mouseOver="assetsLbl.setStyle('textDecoration','underline')"
+             mouseOut="assetsLbl.setStyle('textDecoration','none')"
+             click="currentState = 'assets'"/>
+
+    <s:Spacer/>
+
+    <!--iconAndSplash-->
+    <s:HGroup includeIn="iconAndSplash"
+              width="100%" horizontalAlign="center" gap="50">
         <s:Group width="250" height="320">
             <s:BitmapImage id="iconBgIcon"
                            source="@Embed(source='/assets/empty_icon_bg.png')"/>
@@ -123,20 +165,25 @@
 
     </s:HGroup>
 
-    <s:Spacer height="100%"/>
+    <s:Spacer includeIn="iconAndSplash"
+              height="100%"/>
 
     <input:TextInputForm id="iconSizesInput"
+                         includeIn="iconAndSplash"
                          restrict="0-9\, "
                          text="@{vm.iconSizes}"
                          title="Icon sizes" width="600"/>
 
-    <input:TextInputForm title="Icon's template of name (use constant SIZE as icon's size)"
+    <input:TextInputForm includeIn="iconAndSplash"
+                         title="Icon's template of name (use constant SIZE as icon's size)"
                          width="600" text="@{vm.iconNameTemplate}"/>
 
-    <input:TextInputForm title="Log's item template (use constant SIZE as icon's size)"
+    <input:TextInputForm includeIn="iconAndSplash"
+                         title="Log's item template (use constant SIZE as icon's size)"
                          width="600" text="@{vm.logItemTemplate}"/>
 
-    <s:Group width="600">
+    <s:Group includeIn="iconAndSplash"
+             width="600">
         <input:TextInputForm id="splashBgColorInput"
                              restrict="0-9,A-F,a-f"
                              text="@{vm.splashBgColor}"
@@ -150,12 +197,45 @@
                  text="#"/>
     </s:Group>
 
-    <s:Spacer height="100%"/>
+    <s:Spacer includeIn="iconAndSplash"
+              height="100%"/>
+
+    <!--assets-->
+
+    <button:WhiteButton includeIn="assets"
+                        label="Select assets as SWF-File"
+                        width="250" bottom="0"
+                        click="vm.selectSWFFile()"/>
+
+    <s:Label includeIn="assets"
+             width="100%"
+             color="#ffFFff"
+             fontSize="20"
+             text="{vm.swfFileUrl}"/>
+
+    <s:Group includeIn="assets"
+             width="100%" height="100%">
+        <s:BitmapImage id="bg"
+                       fillMode="scale"
+                       source="@Embed(source='/assets/list_bg.png', scaleGridLeft='20', scaleGridRight='21', scaleGridTop='20', scaleGridBottom='21')"
+                       width="100%" height="100%"/>
+        <s:Scroller width="100%" top="10" bottom="0">
+            <s:DataGroup width="100%"
+                         dataProvider="{vm.iosAssetColl}"
+                         itemRenderer="de.dittner.appIconResizer.ui.common.list.IOSAssetRenderer">
+                <s:layout>
+                    <s:VerticalLayout gap="0" useVirtualLayout="true"/>
+                </s:layout>
+            </s:DataGroup>
+        </s:Scroller>
+    </s:Group>
 
     <button:RedButton label="Generate"
                       width="250"
-                      enabled="{generateIconsBtnEnabled(vm.selectedIcon, vm.selectedSplash, vm.iconSizes, vm.iconNameTemplate)}"
-                      click="generateIcons()"/>
+                      enabled.iconAndSplash="{generateIconsBtnEnabled(vm.selectedIcon, vm.selectedSplash, vm.iconSizes, vm.iconNameTemplate)}"
+                      enabled.assets="{generateIOSAssetsBtnEnabled(vm.iosAssetColl)}"
+                      click.iconAndSplash="generateIcons()"
+                      click.assets="generateIOSAssets()"/>
 
     <s:Label width="500"
              color="#ffFFff"

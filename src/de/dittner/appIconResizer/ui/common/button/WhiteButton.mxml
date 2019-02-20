@@ -19,8 +19,8 @@
                 </s:states>
 
                 <s:BitmapImage left="-5" right="-5"
-                               source.upState="@Embed('/assets/white_btn_up.png', scaleGridLeft='25', scaleGridRight='26', scaleGridTop='25', scaleGridBottom='26')"
-                               source.downState="@Embed('/assets/white_btn_down.png', scaleGridLeft='25', scaleGridRight='26', scaleGridTop='25', scaleGridBottom='26')"
+                               source.upState="@Embed('/assets/white_btn_up.png', scaleGridLeft='20', scaleGridRight='21', scaleGridTop='20', scaleGridBottom='21')"
+                               source.downState="@Embed('/assets/white_btn_down.png', scaleGridLeft='20', scaleGridRight='21', scaleGridTop='20', scaleGridBottom='21')"
                                alpha.disabled=".5"/>
 
                 <s:Label id="labelDisplay"

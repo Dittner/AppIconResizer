@@ -48,7 +48,7 @@ public class FileChooser {
 	}
 
 	private static function fileSelectCanceled(event:Event):void {
-		curOp.dispatchCancel();
+		curOp.dispatchAbort();
 	}
 
 	private static function loadFile(url:String):void {

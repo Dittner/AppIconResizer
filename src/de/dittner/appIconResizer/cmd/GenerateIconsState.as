@@ -17,6 +17,10 @@ public class GenerateIconsState {
 	public var splashBgColor:uint = 0;
 	public var splashes:Array = [];
 
+	//assets
+	public var assetsDir:File;
+	public var assets:Array = [];
+
 	//store
 	public var iconsDir:File;
 	public var splashesDir:File;

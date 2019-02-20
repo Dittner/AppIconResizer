@@ -15,15 +15,21 @@ public class PrepareCmd extends AsyncCommand {
 		state.iconsLog = "";
 		state.splashesLog = "";
 
-		state.iconsDir = File.documentsDirectory.resolvePath("appIcons" + File.separator);
-		if (state.iconsDir.exists) state.iconsDir.deleteDirectory(true);
-		state.iconsDir.createDirectory();
+		if(state.assets && state.assets.length > 0) {
+			state.assetsDir = File.documentsDirectory.resolvePath("APP_ICON_RESIZER" +  File.separator + "assets" + File.separator);
+			if (state.assetsDir.exists) state.assetsDir.deleteDirectory(true);
+			state.assetsDir.createDirectory();
+		}
+		else {
+			state.iconsDir = File.documentsDirectory.resolvePath("APP_ICON_RESIZER" +  File.separator + "icons" + File.separator);
+			if (state.iconsDir.exists) state.iconsDir.deleteDirectory(true);
+			state.iconsDir.createDirectory();
 
-		state.splashesDir = File.documentsDirectory.resolvePath("appIcons" + File.separator + "splash" + File.separator);
-		state.splashesDir.createDirectory();
+			state.splashesDir = File.documentsDirectory.resolvePath("APP_ICON_RESIZER" +  File.separator + "icons" + File.separator + "splash" + File.separator);
+			state.splashesDir.createDirectory();
+		}
 
 		dispatchSuccess();
 	}
-
 }
 }

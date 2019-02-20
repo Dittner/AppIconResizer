@@ -12,7 +12,7 @@ public class Cache {
 	private static var dbFile:File;
 	private static var dbData:Object = {};
 	private static var writeFileStream:FileStream;
-	private static const APP_ROOT:String = "AppIconsResizer/";
+	private static const APP_ROOT:String = "APP_ICON_RESIZER/";
 
 	public static function init():void {
 		if (!initialized) {
