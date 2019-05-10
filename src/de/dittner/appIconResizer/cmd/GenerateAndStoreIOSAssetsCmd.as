@@ -56,8 +56,8 @@ public class GenerateAndStoreIOSAssetsCmd extends ProgressCommand {
 		mc.width = asset.width;
 		mc.height = asset.height;
 		mc.scaleX = mc.scaleY = factor;
-		mc.x = Math.ceil(mc.width / 2);
-		mc.y = Math.ceil(mc.height / 2);
+		mc.x = mc.width / 2;
+		mc.y = mc.height / 2;
 
 		if(curClipParent) curClipParent.removeChild(mc);
 		cont.addChild(mc);

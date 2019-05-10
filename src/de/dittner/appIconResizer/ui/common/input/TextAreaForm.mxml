@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:input="de.dittner.appIconResizer.ui.common.input.*">
+
+    <fx:Metadata>
+        [Event(name="changing", type="spark.events.TextOperationEvent")]
+        [Event(name="change", type="spark.events.TextOperationEvent")]
+        [Event(name="textChanged", type="flash.events.Event")]
+    </fx:Metadata>
+
+    <fx:Script><![CDATA[
+        import de.dittner.appIconResizer.utils.AppColors;
+        import de.dittner.appIconResizer.utils.FontName;
+
+        import mx.core.UIComponent;
+
+        import spark.events.TextOperationEvent;
+
+        private static const TITLE_HEIGHT:uint = 20;
+
+        //--------------------------------------
+        //  text
+        //--------------------------------------
+        private var _text:String = "";
+        [Bindable("textChanged")]
+        public function get text():String {return _text;}
+        public function set text(value:String):void {
+            if (_text != value) {
+                _text = value;
+                dispatchEvent(new Event("textChanged"));
+            }
+        }
+
+        //--------------------------------------
+        //  title
+        //--------------------------------------
+        private var _title:String = "";
+        [Bindable("titleChanged")]
+        public function get title():String {return _title;}
+        public function set title(value:String):void {
+            if (_title != value) {
+                _title = value;
+                dispatchEvent(new Event("titleChanged"));
+            }
+        }
+
+        //--------------------------------------
+        //  maxChars
+        //--------------------------------------
+        private var _maxChars:int = NaN;
+        [Bindable("maxCharsChanged")]
+        public function get maxChars():int {return _maxChars;}
+        public function set maxChars(value:int):void {
+            if (_maxChars != value) {
+                _maxChars = value;
+                dispatchEvent(new Event("maxCharsChanged"));
+            }
+        }
+
+        //--------------------------------------
+        //  isValidInput
+        //--------------------------------------
+        private var _isValidInput:Boolean = true;
+        [Bindable("isValidInputChanged")]
+        public function get isValidInput():Boolean {return _isValidInput;}
+        public function set isValidInput(value:Boolean):void {
+            if (_isValidInput != value) {
+                _isValidInput = value;
+                dispatchEvent(new Event("isValidInputChanged"));
+                invalidateDisplayList();
+            }
+        }
+
+        private function area_changeHandler(event:TextOperationEvent):void {
+            dispatchEvent(event.clone());
+        }
+        ]]></fx:Script>
+
+    <s:BitmapImage id="bg"
+                   fillMode="scale"
+                   source="@Embed(source='/assets/input_bg.png', scaleGridLeft='20', scaleGridRight='21', scaleGridTop='20', scaleGridBottom='21')"
+                   top="{TITLE_HEIGHT}" bottom="0"
+                   width="100%"/>
+
+    <input:MXLabel id="titleLbl"
+                   fontSize="15"
+                   multiline="false"
+                   mouseEnabled="false"
+                   text="{title}"
+                   color="{AppColors.TEXT_CONTROL_TITLE}"/>
+
+    <input:HistoryTextArea id="area"
+                           skinClass="de.dittner.appIconResizer.ui.common.input.TextAreaFormSkin"
+                           width="100%" top="{TITLE_HEIGHT}" bottom="0"
+                           text="@{text}"
+                           color="{AppColors.TEXT_DARK_GRAY}"
+                           fontSize="16"
+                           fontFamily="{FontName.MENLO}"
+                           focusSkin="{UIComponent}"
+                           borderVisible="false"
+                           change="area_changeHandler(event)"/>
+</s:Group>

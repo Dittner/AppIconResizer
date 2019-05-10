@@ -17,6 +17,12 @@
     embedAsCFF: true;
 }
 
+@font-face {
+    src: url("/fonts/Menlo-Regular.ttf");
+    font-family: Menlo;
+    embedAsCFF: true;
+}
+
 /**************************** MX **************************/
 
 @font-face {
@@ -29,6 +35,12 @@
     src: url("/fonts/MyriadPro-Semibold.otf");
     font-family: MyriadProMX;
     fontWeight: bold;
+    embedAsCFF: false;
+}
+
+@font-face {
+    src: url("/fonts/Menlo-Regular.ttf");
+    font-family: MenloMX;
     embedAsCFF: false;
 }
 
@@ -70,6 +82,5 @@ input|TextInputForm {
 s|RichEditableText {
     focusSkin: ClassReference("mx.core.UIComponent");
     focusedTextSelectionColor: #ffbbb8;
-    fontFamily: MyriadPro;
 }
 

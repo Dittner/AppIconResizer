@@ -18,6 +18,8 @@ import flash.display.MovieClip;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.filesystem.File;
+import flash.filesystem.FileMode;
+import flash.filesystem.FileStream;
 import flash.net.FileFilter;
 
 import mx.collections.ArrayCollection;
@@ -86,6 +88,19 @@ public class AppModel extends EventDispatcher {
 	}
 
 	//--------------------------------------
+	//  textToJSON
+	//--------------------------------------
+	private var _textToJSON:String = "";
+	[Bindable("textToJSONChanged")]
+	public function get textToJSON():String {return _textToJSON;}
+	public function set textToJSON(value:String):void {
+		if (_textToJSON != value) {
+			_textToJSON = value;
+			dispatchEvent(new Event("textToJSONChanged"));
+		}
+	}
+
+	//--------------------------------------
 	//  selectedIcon
 	//--------------------------------------
 	private var _selectedIcon:BitmapData;
@@ -147,11 +162,13 @@ public class AppModel extends EventDispatcher {
 	private static const LOG_ITEM_TEMPLATE:String = "LOG_ITEM_TEMPLATE";
 	private static const ICON_SIZES:String = "ICON_SIZES";
 	private static const SPLASH_BG_COLOR:String = "SPLASH_BG_COLOR";
+	private static const TEXT_TO_JSON:String = "TEXT_TO_JSON";
 	public function init():void {
 		iconNameTemplate = Cache.read(ICON_NAME_TEMPLATE) || "AppIconSIZExSIZE.png";
 		logItemTemplate = Cache.read(LOG_ITEM_TEMPLATE) || "<imageSIZExSIZE>icons/AppIconSIZExSIZE.png</imageSIZExSIZE>";
 		iconSizes = Cache.read(ICON_SIZES) || "20, 29, 36, 40, 48, 50, 57, 58, 60, 72, 75, 76, 80, 87, 96, 100, 114, 120, 144, 152, 167, 180, 192, 512, 1024";
 		splashBgColor = Cache.read(SPLASH_BG_COLOR) || _splashBgColor;
+		textToJSON = Cache.read(TEXT_TO_JSON) || "";
 	}
 
 	//--------------------------------------
@@ -202,6 +219,8 @@ public class AppModel extends EventDispatcher {
 				var asset:IOSAsset = new IOSAsset(assetsMC[prop], prop);
 				assets.push(asset);
 			}
+
+		assets = assets.sortOn("name");
 		iosAssetColl = new ArrayCollection(assets);
 	}
 
@@ -258,5 +277,88 @@ public class AppModel extends EventDispatcher {
 		return res;
 	}
 
+	public function generateJSONText():String {
+		Cache.write(TEXT_TO_JSON, textToJSON);
+
+		var root:Object = {};
+		var parentHash:Object = {};
+		parentHash[0] = root;
+		var lines:Array = textToJSON.split("\n");
+
+		for each(var line:String in lines) {
+			if (!line) continue;
+
+			var lineInfo:LineInfo = new LineInfo();
+			lineInfo.parse(line);
+			if (lineInfo.parseError) return lineInfo.parseError;
+
+			var actualParent:Object = parentHash[lineInfo.spaces.length];
+
+			if (lineInfo.isParent) {
+				actualParent[lineInfo.key] = {};
+				parentHash[lineInfo.spaces.length + 2] = actualParent[lineInfo.key];
+			}
+			else {
+				actualParent[lineInfo.key] = lineInfo.value;
+			}
+		}
+		return JSON.stringify(root);
+	}
 }
+}
+class LineInfo {
+	function LineInfo() {}
+
+	public function parse(text:String):void {
+		_text = text.replace(/(: *)/i, ":");
+		var dlmInd:int = _text.indexOf(":");
+		if (dlmInd == -1) {
+			_parseError = "Line: " + text + "\nhas not a delimiter ':'";
+		}
+		else {
+			var keyField:String = _text.substr(0, dlmInd);
+			_value = _text.substring(dlmInd + 1).replace(/(")+/gi, "");
+			_spaces = keyField.replace(/( *)\w+/i, "$1");
+			if (_spaces.length % 2 != 0) _parseError = "Incorrect amount of spaces in the line:\n" + text;
+			_key = _text.substring(_spaces.length, dlmInd);
+			_isParent = _value == "";
+		}
+	}
+
+	//--------------------------------------
+	//  text
+	//--------------------------------------
+	private var _text:String = "";
+	public function get text():String {return _text;}
+
+	//--------------------------------------
+	//  key
+	//--------------------------------------
+	private var _key:String = "";
+	public function get key():String {return _key;}
+
+	//--------------------------------------
+	//  value
+	//--------------------------------------
+	private var _value:String = "";
+	public function get value():String {return _value;}
+
+	//--------------------------------------
+	//  spaces
+	//--------------------------------------
+	private var _spaces:String = "";
+	public function get spaces():String {return _spaces;}
+
+	//--------------------------------------
+	//  isParent
+	//--------------------------------------
+	private var _isParent:Boolean = false;
+	public function get isParent():Boolean {return _isParent;}
+
+	//--------------------------------------
+	//  parseError
+	//--------------------------------------
+	private var _parseError:String = "";
+	public function get parseError():String {return _parseError;}
+
 }

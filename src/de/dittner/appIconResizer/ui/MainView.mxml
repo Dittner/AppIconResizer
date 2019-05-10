@@ -88,6 +88,15 @@
             processingInfo = op.isSuccess ? "documents/APP_ICON_RESIZER" : op.error;
             isProcessing = false;
         }
+
+        private function generateJSONCode():void {
+            if (!isProcessing)
+                jsonTextArea.text = vm.generateJSONText();
+        }
+
+        //--------------------------------------
+        //  mp3
+        //--------------------------------------
         ]]></fx:Script>
     <s:layout>
         <s:VerticalLayout horizontalAlign="center" gap="20"
@@ -96,13 +105,14 @@
     <s:states>
         <s:State name="iconAndSplash"/>
         <s:State name="assets"/>
+        <s:State name="utils"/>
     </s:states>
 
     <s:Label id="splashLbl"
              text="Splash and app icons"
              fontSize="25"
              color="#ffFFff"
-             fontWeight.iconAndSplash="bold" fontWeight.assets="normal"
+             fontWeight="normal" fontWeight.iconAndSplash="bold"
              mouseOver="splashLbl.setStyle('textDecoration','underline')"
              mouseOut="splashLbl.setStyle('textDecoration','none')"
              click="currentState = 'iconAndSplash'"/>
@@ -111,11 +121,19 @@
              text="IOS assets from SWF-file"
              fontSize="25"
              color="#ffFFff"
-             fontWeight.iconAndSplash="normal" fontWeight.assets="bold"
+             fontWeight="normal" fontWeight.assets="bold"
              mouseOver="assetsLbl.setStyle('textDecoration','underline')"
              mouseOut="assetsLbl.setStyle('textDecoration','none')"
              click="currentState = 'assets'"/>
 
+    <s:Label id="utilsLbl"
+             text="Convert Text to JSON"
+             fontSize="25"
+             color="#ffFFff"
+             fontWeight="normal" fontWeight.utils="bold"
+             mouseOver="utilsLbl.setStyle('textDecoration','underline')"
+             mouseOut="utilsLbl.setStyle('textDecoration','none')"
+             click="currentState = 'utils'"/>
     <s:Spacer/>
 
     <!--iconAndSplash-->
@@ -230,12 +248,31 @@
         </s:Scroller>
     </s:Group>
 
+
+    <!--utils-->
+
+    <input:TextAreaForm id="originTextArea"
+                        includeIn="utils"
+                        text="@{vm.textToJSON}"
+                        title="Origin text. 2 spaces define the depth of the hierarchy"
+                        width="100%" height="50%"/>
+
+    <input:TextAreaForm id="jsonTextArea"
+                        includeIn="utils"
+                        title="JSON text"
+                        width="100%" height="50%"/>
+
+
+    <!--==========================-->
+
     <button:RedButton label="Generate"
                       width="250"
                       enabled.iconAndSplash="{generateIconsBtnEnabled(vm.selectedIcon, vm.selectedSplash, vm.iconSizes, vm.iconNameTemplate)}"
                       enabled.assets="{generateIOSAssetsBtnEnabled(vm.iosAssetColl)}"
+                      enabled.utils="{originTextArea.text != ''}"
                       click.iconAndSplash="generateIcons()"
-                      click.assets="generateIOSAssets()"/>
+                      click.assets="generateIOSAssets()"
+                      click.utils="generateJSONCode()"/>
 
     <s:Label width="500"
              color="#ffFFff"
