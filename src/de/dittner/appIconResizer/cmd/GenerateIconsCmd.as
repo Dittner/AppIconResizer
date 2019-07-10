@@ -16,10 +16,12 @@ public class GenerateIconsCmd extends ProgressOperation implements IAsyncCommand
 
 	public function execute():void {
 		state.icons.length = 0;
-		if (state.originIcon)
+		if (state.originIcon) {
 			createNextIcon();
-		else
+		}
+		else {
 			dispatchSuccess();
+		}
 	}
 
 	private function createNextIcon():void {
@@ -36,7 +38,7 @@ public class GenerateIconsCmd extends ProgressOperation implements IAsyncCommand
 			invalidateOf(createNextIcon);
 		}
 		else {
-			dispatchSuccess();
+			dispatchSuccess()
 		}
 	}
 

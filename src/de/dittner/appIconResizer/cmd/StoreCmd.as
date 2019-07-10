@@ -22,11 +22,12 @@ public class StoreCmd extends ProgressOperation implements IAsyncCommand {
 	}
 
 	private var storeIconInd:int = -1;
+	private var storeXCAssetInd:int = -1;
 	private var storeSplashInd:int = -1;
 
 	private function storeIcons():void {
 		storeIconInd++;
-		_total = state.icons.length + state.splashes.length;
+		_total = state.icons.length + state.xcassets.length + state.splashes.length;
 		_progress = storeIconInd + storeSplashInd;
 		notifyProgressChanged();
 
@@ -37,14 +38,30 @@ public class StoreCmd extends ProgressOperation implements IAsyncCommand {
 			invalidateOf(storeIcons);
 		}
 		else {
+			storeXCAssets();
+		}
+	}
+
+	private function storeXCAssets():void {
+		storeXCAssetInd++;
+		_total = state.icons.length + state.xcassets.length + state.splashes.length;
+		_progress = storeIconInd + storeXCAssetInd;
+		notifyProgressChanged();
+
+		if (storeXCAssetInd < state.xcassets.length) {
+			var icon:AppIcon = state.xcassets[storeXCAssetInd];
+			icon.store(state.xcassetsDir);
+			invalidateOf(storeXCAssets);
+		}
+		else {
 			storeSplashes();
 		}
 	}
 
 	private function storeSplashes():void {
 		storeSplashInd++;
-		_total = state.icons.length + state.splashes.length;
-		_progress = storeIconInd + storeSplashInd;
+		_total = state.icons.length + state.xcassets.length + state.splashes.length;
+		_progress = storeIconInd + storeXCAssetInd + storeSplashInd;
 		notifyProgressChanged();
 
 		if (storeSplashInd < state.splashes.length) {

@@ -3,6 +3,7 @@ import de.dittner.appIconResizer.cmd.GenerateAndStoreIOSAssetsCmd;
 import de.dittner.appIconResizer.cmd.GenerateIconsCmd;
 import de.dittner.appIconResizer.cmd.GenerateIconsState;
 import de.dittner.appIconResizer.cmd.GenerateSplashesCmd;
+import de.dittner.appIconResizer.cmd.GenerateXCAssetsCmd;
 import de.dittner.appIconResizer.cmd.PrepareCmd;
 import de.dittner.appIconResizer.cmd.StoreCmd;
 import de.dittner.appIconResizer.ui.common.dialogBox.showNotification;
@@ -18,8 +19,6 @@ import flash.display.MovieClip;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.filesystem.File;
-import flash.filesystem.FileMode;
-import flash.filesystem.FileStream;
 import flash.net.FileFilter;
 
 import mx.collections.ArrayCollection;
@@ -245,7 +244,8 @@ public class AppModel extends EventDispatcher {
 		var cmd:CompositeCommand = new CompositeCommand();
 		cmd.addProgressOperation(PrepareCmd, 0.01, state);
 		cmd.addProgressOperation(GenerateIconsCmd, 0.1, state);
-		cmd.addProgressOperation(GenerateSplashesCmd, 0.2, state);
+		cmd.addProgressOperation(GenerateXCAssetsCmd, 0.3, state);
+		cmd.addProgressOperation(GenerateSplashesCmd, 0.5, state);
 		cmd.addProgressOperation(StoreCmd, 1, state);
 
 		cmd.execute();

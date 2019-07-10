@@ -9,6 +9,7 @@ public class GenerateIconsState {
 	public var originIcon:BitmapData;
 	public var iconSizes:Array = [];
 	public var icons:Array = [];
+	public var xcassets:Array = [];
 	public var iconNameTemplate:String = "";
 	public var logItemTemplate:String = "";
 
@@ -24,6 +25,7 @@ public class GenerateIconsState {
 	//store
 	public var iconsDir:File;
 	public var splashesDir:File;
+	public var xcassetsDir:File;
 	public var iconsLog:String = "";
 	public var splashesLog:String = "";
 }
