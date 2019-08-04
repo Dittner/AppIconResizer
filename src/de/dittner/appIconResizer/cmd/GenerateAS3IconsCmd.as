@@ -5,8 +5,8 @@ import de.dittner.async.IAsyncCommand;
 import de.dittner.async.ProgressOperation;
 import de.dittner.async.utils.invalidateOf;
 
-public class GenerateIconsCmd extends ProgressOperation implements IAsyncCommand {
-	public function GenerateIconsCmd(state:GenerateIconsState) {
+public class GenerateAS3IconsCmd extends ProgressOperation implements IAsyncCommand {
+	public function GenerateAS3IconsCmd(state:GenerateIconsState) {
 		super();
 		this.state = state;
 	}
@@ -15,7 +15,7 @@ public class GenerateIconsCmd extends ProgressOperation implements IAsyncCommand
 	private var curSizeInd:int = -1;
 
 	public function execute():void {
-		state.icons.length = 0;
+		state.as3Icons.length = 0;
 		if (state.originIcon) {
 			createNextIcon();
 		}
@@ -34,7 +34,7 @@ public class GenerateIconsCmd extends ProgressOperation implements IAsyncCommand
 			var iconName:String = state.iconNameTemplate.replace(/SIZE/g, size);
 			var icon:AppIcon = new AppIcon(iconName, size);
 			icon.bitmapData = BitmapUtils.resample(state.originIcon, size, size);
-			state.icons.push(icon);
+			state.as3Icons.push(icon);
 			invalidateOf(createNextIcon);
 		}
 		else {

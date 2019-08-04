@@ -27,12 +27,12 @@ public class StoreCmd extends ProgressOperation implements IAsyncCommand {
 
 	private function storeIcons():void {
 		storeIconInd++;
-		_total = state.icons.length + state.xcassets.length + state.splashes.length;
+		_total = state.as3Icons.length + state.xcIcons.length + state.splashes.length;
 		_progress = storeIconInd + storeSplashInd;
 		notifyProgressChanged();
 
-		if (storeIconInd < state.icons.length) {
-			var icon:AppIcon = state.icons[storeIconInd];
+		if (storeIconInd < state.as3Icons.length) {
+			var icon:AppIcon = state.as3Icons[storeIconInd];
 			icon.store(state.iconsDir);
 			state.iconsLog += state.logItemTemplate.replace(/SIZE/g, icon.size) + "\n";
 			invalidateOf(storeIcons);
@@ -44,23 +44,31 @@ public class StoreCmd extends ProgressOperation implements IAsyncCommand {
 
 	private function storeXCAssets():void {
 		storeXCAssetInd++;
-		_total = state.icons.length + state.xcassets.length + state.splashes.length;
+		_total = state.as3Icons.length + state.xcIcons.length + state.splashes.length;
 		_progress = storeIconInd + storeXCAssetInd;
 		notifyProgressChanged();
 
-		if (storeXCAssetInd < state.xcassets.length) {
-			var icon:AppIcon = state.xcassets[storeXCAssetInd];
+		if (storeXCAssetInd < state.xcIcons.length) {
+			var icon:AppIcon = state.xcIcons[storeXCAssetInd];
 			icon.store(state.xcassetsDir);
 			invalidateOf(storeXCAssets);
 		}
 		else {
+			storeXCIconsContents();
 			storeSplashes();
 		}
 	}
 
+	private function storeXCIconsContents():void {
+		var contentsFile:File = File.applicationDirectory.resolvePath("Contents.json");
+		if (!contentsFile.exists) throw new Error("Не обнаружена Contents.json в папке с ресурсами");
+		contentsFile.copyTo(state.xcassetsDir.resolvePath("Contents.json"), true);
+
+	}
+
 	private function storeSplashes():void {
 		storeSplashInd++;
-		_total = state.icons.length + state.xcassets.length + state.splashes.length;
+		_total = state.as3Icons.length + state.xcIcons.length + state.splashes.length;
 		_progress = storeIconInd + storeXCAssetInd + storeSplashInd;
 		notifyProgressChanged();
 
@@ -78,7 +86,7 @@ public class StoreCmd extends ProgressOperation implements IAsyncCommand {
 	private function storeLogs():void {
 		if (state.iconsLog) {
 			var iconsLogStream:FileStream = new FileStream();
-			var iconsLogFile:File = new File(state.iconsDir.nativePath + File.separator + "IconsLogs");
+			var iconsLogFile:File = new File(state.iconsDir.nativePath + File.separator + "IconsLogs.txt");
 			iconsLogStream.open(iconsLogFile, FileMode.WRITE);
 			iconsLogStream.writeUTFBytes(state.iconsLog);
 			iconsLogStream.close();

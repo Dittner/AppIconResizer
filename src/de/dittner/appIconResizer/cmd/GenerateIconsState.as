@@ -8,8 +8,8 @@ public class GenerateIconsState {
 	//icons
 	public var originIcon:BitmapData;
 	public var iconSizes:Array = [];
-	public var icons:Array = [];
-	public var xcassets:Array = [];
+	public var as3Icons:Array = [];
+	public var xcIcons:Array = [];
 	public var iconNameTemplate:String = "";
 	public var logItemTemplate:String = "";
 

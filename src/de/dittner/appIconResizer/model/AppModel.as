@@ -1,9 +1,9 @@
 package de.dittner.appIconResizer.model {
+import de.dittner.appIconResizer.cmd.GenerateAS3IconsCmd;
 import de.dittner.appIconResizer.cmd.GenerateAndStoreIOSAssetsCmd;
-import de.dittner.appIconResizer.cmd.GenerateIconsCmd;
 import de.dittner.appIconResizer.cmd.GenerateIconsState;
 import de.dittner.appIconResizer.cmd.GenerateSplashesCmd;
-import de.dittner.appIconResizer.cmd.GenerateXCAssetsCmd;
+import de.dittner.appIconResizer.cmd.GenerateXCIconsCmd;
 import de.dittner.appIconResizer.cmd.PrepareCmd;
 import de.dittner.appIconResizer.cmd.StoreCmd;
 import de.dittner.appIconResizer.ui.common.dialogBox.showNotification;
@@ -243,8 +243,8 @@ public class AppModel extends EventDispatcher {
 
 		var cmd:CompositeCommand = new CompositeCommand();
 		cmd.addProgressOperation(PrepareCmd, 0.01, state);
-		cmd.addProgressOperation(GenerateIconsCmd, 0.1, state);
-		cmd.addProgressOperation(GenerateXCAssetsCmd, 0.3, state);
+		cmd.addProgressOperation(GenerateAS3IconsCmd, 0.1, state);
+		cmd.addProgressOperation(GenerateXCIconsCmd, 0.3, state);
 		cmd.addProgressOperation(GenerateSplashesCmd, 0.5, state);
 		cmd.addProgressOperation(StoreCmd, 1, state);
 
