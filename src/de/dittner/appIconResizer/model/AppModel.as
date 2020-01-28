@@ -243,9 +243,9 @@ public class AppModel extends EventDispatcher {
 
 		var cmd:CompositeCommand = new CompositeCommand();
 		cmd.addProgressOperation(PrepareCmd, 0.01, state);
-		cmd.addProgressOperation(GenerateAS3IconsCmd, 0.1, state);
-		cmd.addProgressOperation(GenerateXCIconsCmd, 0.3, state);
-		cmd.addProgressOperation(GenerateSplashesCmd, 0.5, state);
+		cmd.addProgressOperation(GenerateAS3IconsCmd, 0.3, state);
+		cmd.addProgressOperation(GenerateXCIconsCmd, 0.75, state);
+		cmd.addProgressOperation(GenerateSplashesCmd, 0.8, state);
 		cmd.addProgressOperation(StoreCmd, 1, state);
 
 		cmd.execute();

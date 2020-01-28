@@ -18,21 +18,20 @@ public class StoreCmd extends ProgressOperation implements IAsyncCommand {
 	private var state:GenerateIconsState;
 
 	public function execute():void {
+		_total = pendingIconsAmount();
 		storeIcons();
 	}
 
-	private var storeIconInd:int = -1;
-	private var storeXCAssetInd:int = -1;
-	private var storeSplashInd:int = -1;
+	private function pendingIconsAmount():int {
+		return state.as3Icons.length + state.xcIOsIcons.length + state.xcMacOsIcons.length + state.splashes.length;
+	}
 
 	private function storeIcons():void {
-		storeIconInd++;
-		_total = state.as3Icons.length + state.xcIcons.length + state.splashes.length;
-		_progress = storeIconInd + storeSplashInd;
+		_progress = _total - pendingIconsAmount();
 		notifyProgressChanged();
 
-		if (storeIconInd < state.as3Icons.length) {
-			var icon:AppIcon = state.as3Icons[storeIconInd];
+		if (state.as3Icons.length > 0) {
+			var icon:AppIcon = state.as3Icons.pop();
 			icon.store(state.iconsDir);
 			state.iconsLog += state.logItemTemplate.replace(/SIZE/g, icon.size) + "\n";
 			invalidateOf(storeIcons);
@@ -43,14 +42,17 @@ public class StoreCmd extends ProgressOperation implements IAsyncCommand {
 	}
 
 	private function storeXCAssets():void {
-		storeXCAssetInd++;
-		_total = state.as3Icons.length + state.xcIcons.length + state.splashes.length;
-		_progress = storeIconInd + storeXCAssetInd;
+		_progress = _total - pendingIconsAmount();
 		notifyProgressChanged();
 
-		if (storeXCAssetInd < state.xcIcons.length) {
-			var icon:AppIcon = state.xcIcons[storeXCAssetInd];
-			icon.store(state.xcassetsDir);
+		if (state.xcIOsIcons.length > 0) {
+			var iosIcon:AppIcon = state.xcIOsIcons.pop();
+			iosIcon.store(state.xcIOsAssetsDir);
+			invalidateOf(storeXCAssets);
+		}
+		else if (state.xcMacOsIcons.length > 0) {
+			var macIcon:AppIcon = state.xcMacOsIcons.pop();
+			macIcon.store(state.xcMacOsAssetsDir);
 			invalidateOf(storeXCAssets);
 		}
 		else {
@@ -60,20 +62,21 @@ public class StoreCmd extends ProgressOperation implements IAsyncCommand {
 	}
 
 	private function storeXCIconsContents():void {
-		var contentsFile:File = File.applicationDirectory.resolvePath("Contents.json");
-		if (!contentsFile.exists) throw new Error("Не обнаружена Contents.json в папке с ресурсами");
-		contentsFile.copyTo(state.xcassetsDir.resolvePath("Contents.json"), true);
+		var contentsFile:File = File.applicationDirectory.resolvePath("ios/Contents.json");
+		if (!contentsFile.exists) throw new Error("Не обнаружена ios/Contents.json в папке с ресурсами");
+		contentsFile.copyTo(state.xcIOsAssetsDir.resolvePath("Contents.json"), true);
 
+		contentsFile = File.applicationDirectory.resolvePath("mac/Contents.json");
+		if (!contentsFile.exists) throw new Error("Не обнаружена mac/Contents.json в папке с ресурсами");
+		contentsFile.copyTo(state.xcMacOsAssetsDir.resolvePath("Contents.json"), true);
 	}
 
 	private function storeSplashes():void {
-		storeSplashInd++;
-		_total = state.as3Icons.length + state.xcIcons.length + state.splashes.length;
-		_progress = storeIconInd + storeXCAssetInd + storeSplashInd;
+		_progress = _total - pendingIconsAmount();
 		notifyProgressChanged();
 
-		if (storeSplashInd < state.splashes.length) {
-			var icon:AppSplash = state.splashes[storeSplashInd];
+		if (state.splashes.length > 0) {
+			var icon:AppSplash = state.splashes.pop();
 			icon.store(state.splashesDir);
 			state.splashesLog += '"' + icon.name + '", ';
 			invalidateOf(storeSplashes);

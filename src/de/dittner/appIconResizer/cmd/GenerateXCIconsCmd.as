@@ -14,9 +14,10 @@ public class GenerateXCIconsCmd extends ProgressOperation implements IAsyncComma
 	private var state:GenerateIconsState;
 
 	public function execute():void {
-		state.xcIcons.length = 0;
+		state.xcIOsIcons.length = 0;
 		if (state.originIcon) {
-			prepareXCassets();
+			prepareIOsAassets();
+			prepareMacOsAassets();
 			createNextXCAsset();
 		}
 		else {
@@ -24,41 +25,68 @@ public class GenerateXCIconsCmd extends ProgressOperation implements IAsyncComma
 		}
 	}
 
-	var xcIcons:Array = [];
-	private function prepareXCassets() {
-		xcIcons.push(new AppIcon("AppIcon-20.png", 20));
-		xcIcons.push(new AppIcon("AppIcon-20@2x-1.png", 40));
-		xcIcons.push(new AppIcon("AppIcon-20@2x.png", 40));
-		xcIcons.push(new AppIcon("AppIcon-20@3x.png", 60));
+	var iosIcons:Array = [];
+	private function prepareIOsAassets() {
+		iosIcons.push(new AppIcon("AppIcon-20.png", 20));
+		iosIcons.push(new AppIcon("AppIcon-20@2x-1.png", 40));
+		iosIcons.push(new AppIcon("AppIcon-20@2x.png", 40));
+		iosIcons.push(new AppIcon("AppIcon-20@3x.png", 60));
 
-		xcIcons.push(new AppIcon("AppIcon-29.png", 29));
-		xcIcons.push(new AppIcon("AppIcon-29@2x.png", 58));
-		xcIcons.push(new AppIcon("AppIcon-29@2x-1.png", 58));
-		xcIcons.push(new AppIcon("AppIcon-29@3x.png", 87));
+		iosIcons.push(new AppIcon("AppIcon-29.png", 29));
+		iosIcons.push(new AppIcon("AppIcon-29@2x.png", 58));
+		iosIcons.push(new AppIcon("AppIcon-29@2x-1.png", 58));
+		iosIcons.push(new AppIcon("AppIcon-29@3x.png", 87));
 
-		xcIcons.push(new AppIcon("AppIcon-40.png", 40));
-		xcIcons.push(new AppIcon("AppIcon-40@2x.png", 80));
-		xcIcons.push(new AppIcon("AppIcon-40@2x-1.png", 80));
-		xcIcons.push(new AppIcon("AppIcon-40@3x.png", 120));
+		iosIcons.push(new AppIcon("AppIcon-40.png", 40));
+		iosIcons.push(new AppIcon("AppIcon-40@2x.png", 80));
+		iosIcons.push(new AppIcon("AppIcon-40@2x-1.png", 80));
+		iosIcons.push(new AppIcon("AppIcon-40@3x.png", 120));
 
-		xcIcons.push(new AppIcon("AppIcon-60@2x.png", 120));
-		xcIcons.push(new AppIcon("AppIcon-60@3x.png", 180));
+		iosIcons.push(new AppIcon("AppIcon-60@2x.png", 120));
+		iosIcons.push(new AppIcon("AppIcon-60@3x.png", 180));
 
-		xcIcons.push(new AppIcon("AppIcon-76.png", 76));
-		xcIcons.push(new AppIcon("AppIcon-76@2x.png", 152));
+		iosIcons.push(new AppIcon("AppIcon-76.png", 76));
+		iosIcons.push(new AppIcon("AppIcon-76@2x.png", 152));
 
-		xcIcons.push(new AppIcon("AppIcon-83.5@2x.png", 167));
-		xcIcons.push(new AppIcon("AppIcon-1024.png", 1024));
+		iosIcons.push(new AppIcon("AppIcon-83.5@2x.png", 167));
+		iosIcons.push(new AppIcon("AppIcon-1024.png", 1024));
 	}
-	
+
+	var macOsIcons:Array = [];
+	private function prepareMacOsAassets() {
+		macOsIcons.push(new AppIcon("AppIcon-16.png", 16));
+		macOsIcons.push(new AppIcon("AppIcon-16@2x.png", 32));
+
+		macOsIcons.push(new AppIcon("AppIcon-32.png", 32));
+		macOsIcons.push(new AppIcon("AppIcon-32@2x.png", 64));
+
+		macOsIcons.push(new AppIcon("AppIcon-64.png", 64));
+		macOsIcons.push(new AppIcon("AppIcon-64@2x.png", 128));
+
+		macOsIcons.push(new AppIcon("AppIcon-128.png", 128));
+		macOsIcons.push(new AppIcon("AppIcon-128@2x.png", 256));
+
+		macOsIcons.push(new AppIcon("AppIcon-256.png", 256));
+		macOsIcons.push(new AppIcon("AppIcon-256@2x.png", 512));
+
+		macOsIcons.push(new AppIcon("AppIcon-512.png", 512));
+		macOsIcons.push(new AppIcon("AppIcon-512@2x.png", 1024));
+	}
+
 	private function createNextXCAsset():void {
-		_total = 15;
-		_progress = _total - xcIcons.length;
+		_total = 30;
+		_progress = _total - iosIcons.length - macOsIcons.length;
 		notifyProgressChanged();
-		if (xcIcons.length > 0) {
-			var appIcon:AppIcon = xcIcons.pop();
-			appIcon.bitmapData = BitmapUtils.resample(state.originIcon, appIcon.size, appIcon.size);
-			state.xcIcons.push(appIcon);
+		if (iosIcons.length > 0) {
+			var iosIcon:AppIcon = iosIcons.pop();
+			iosIcon.bitmapData = BitmapUtils.resample(state.originIcon, iosIcon.size, iosIcon.size);
+			state.xcIOsIcons.push(iosIcon);
+			invalidateOf(createNextXCAsset);
+		}
+		else if (macOsIcons.length > 0) {
+			var macIcon:AppIcon = macOsIcons.pop();
+			macIcon.bitmapData = BitmapUtils.resample(state.originIcon, macIcon.size, macIcon.size);
+			state.xcMacOsIcons.push(macIcon);
 			invalidateOf(createNextXCAsset);
 		}
 		else {

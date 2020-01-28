@@ -28,8 +28,11 @@ public class PrepareCmd extends AsyncCommand {
 			state.splashesDir = File.documentsDirectory.resolvePath("APP_ICON_RESIZER" +  File.separator + "icons" + File.separator + "splash" + File.separator);
 			state.splashesDir.createDirectory();
 
-			state.xcassetsDir = File.documentsDirectory.resolvePath("APP_ICON_RESIZER" +  File.separator + "icons" + File.separator + "AppIcon.appiconset" + File.separator);
-			state.xcassetsDir.createDirectory();
+			state.xcIOsAssetsDir = File.documentsDirectory.resolvePath("APP_ICON_RESIZER" +  File.separator + "iosIcons" + File.separator + "AppIcon.appiconset" + File.separator);
+			state.xcIOsAssetsDir.createDirectory();
+
+			state.xcMacOsAssetsDir = File.documentsDirectory.resolvePath("APP_ICON_RESIZER" +  File.separator + "macOsIcons" + File.separator + "AppIcon.appiconset" + File.separator);
+			state.xcMacOsAssetsDir.createDirectory();
 		}
 
 		dispatchSuccess();
